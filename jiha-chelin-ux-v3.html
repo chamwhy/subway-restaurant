@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지하슐랭 — UX v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --brand: #FF6B35;
+  --brand-dim: rgba(255,107,53,0.12);
+  --line2: #00A84D; --line4: #00A5DE;
+  --line1: #0052A4; --line3: #EF7C1C;
+  --line5: #996CAC; --line9: #BDB092;
+  --bg: #F7F3EE;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --text-mid: #777;
+  --text-weak: #B0B0B0;
+  --border: rgba(0,0,0,0.07);
+  --gold: #E8A020;
+  --glass: rgba(252,250,247,0.90);
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  background: #C8C2BA;
+  color: var(--text);
+}
+
+/* ─── PAGE HEADER ─── */
+.pg-head {
+  background: #0E0E0E;
+  padding: 64px 40px 48px;
+  text-align: center;
+}
+.pg-head-eye {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(255,255,255,0.2);
+  margin-bottom: 16px;
+}
+.pg-head h1 {
+  font-size: clamp(32px, 5vw, 56px); font-weight: 900;
+  color: #fff; letter-spacing: -2px; line-height: 1.05;
+  margin-bottom: 10px;
+}
+.pg-head h1 em { color: var(--brand); font-style: normal; }
+.pg-head p {
+  font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.7;
+  max-width: 440px; margin: 0 auto;
+}
+.pg-head-concept {
+  margin-top: 24px;
+  display: inline-flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+}
+.concept-pill {
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.1);
+  padding: 6px 14px; border-radius: 50px;
+}
+.concept-pill em { color: var(--brand); font-style: normal; }
+
+/* ─── SECTION ─── */
+.sec { padding: 52px 40px; max-width: 1100px; margin: 0 auto; }
+.sec-eye {
+  font-size: 10px; font-weight: 800; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--brand); margin-bottom: 6px;
+}
+.sec-title { font-size: 21px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px; }
+.sec-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; margin-bottom: 30px; }
+
+/* ─── PHONE ─── */
+.row { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+.pu { flex-shrink: 0; }
+.pl {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-weak); margin-bottom: 10px;
+}
+
+.phone {
+  width: 292px; height: 632px;
+  border-radius: 50px; overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 12px 32px rgba(0,0,0,0.18),
+    0 48px 96px rgba(0,0,0,0.16);
+  display: flex; flex-direction: column;
+  background: #1A1A1A;
+}
+.di { /* dynamic island */
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 108px; height: 32px; background: #000;
+  border-radius: 18px; z-index: 100;
+}
+.sb { /* status bar */
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 50px; display: flex; align-items: flex-end;
+  justify-content: space-between; padding: 0 26px 9px;
+  z-index: 50; pointer-events: none;
+}
+.sb-t { font-size: 13px; font-weight: 700; }
+.sb-i { font-size: 11px; opacity: 0.75; }
+
+/* ══════════════════════════════════════════════
+   MAP — 지하슐랭 스타일 노선도 감성
+   ══════════════════════════════════════════════ */
+.map-wrap {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden;
+}
+
+/* 배경: 지도라기보단 크림색 도화지 */
+.map-canvas {
+  width: 100%; height: 100%;
+  background: #F0EBE2;
+  position: relative;
+}
+
+/* 노선 — 굵고 선명하게, 지하슐랭 고유의 노선도 */
+.line {
+  position: absolute; border-radius: 4px; z-index: 1;
+}
+
+/* 환승역 표시 */
+.xfer {
+  position: absolute; z-index: 3;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: white; border: 3px solid #888;
+  transform: translate(-50%,-50%);
+}
+
+/* ─── 핵심: 역 = 음식 버블 ─── */
+/* 역 마커가 음식 이모지 + 원형 버블로 대체됨.
+   지도에 식당 이름 없음. 음식만 보임.
+   "이 역엔 이것 하나" 가 한눈에 */
+.st {
+  position: absolute;
+  transform: translate(-50%,-50%);
+  z-index: 4;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+}
+
+/* 기본 역 버블 */
+.st-bub {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: white;
+  border: 3px solid var(--lc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.13), 0 0 0 3px white;
+  transition: transform .18s;
+  position: relative;
+}
+
+/* 방문 완료 역 — 흐리게 */
+.st.done .st-bub {
+  background: #ECEAE6; opacity: 0.6;
+  border-color: #C0BDB8;
+}
+.done-tick {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: #3DAB6F; color: white;
+  font-size: 7px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+/* 1위 선정 역 — 강렬하게 */
+.st.hero .st-bub {
+  width: 58px; height: 58px; font-size: 28px;
+  border-color: var(--brand); border-width: 3.5px;
+  box-shadow:
+    0 0 0 5px rgba(255,107,53,0.14),
+    0 0 0 8px white,
+    0 6px 20px rgba(255,107,53,0.28);
+}
+.hero-crown {
+  position: absolute; top: -13px;
+  font-size: 14px;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+}
+
+/* 역 이름 — 작게, 없어도 됨 */
+.st-nm {
+  font-size: 8.5px; font-weight: 700; color: #555;
+  background: rgba(255,255,255,0.80);
+  backdrop-filter: blur(4px);
+  padding: 1.5px 5px; border-radius: 4px;
+  margin-top: 4px; white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+.st.hero .st-nm {
+  background: var(--brand); color: white; font-size: 9.5px;
+}
+.st.done .st-nm { opacity: 0.55; }
+
+/* ══════════════════════════════════════════════
+   FLOATING UI
+   ══════════════════════════════════════════════ */
+
+/* 3중 토글 — 상단 중앙 */
+.toggle {
+  position: absolute; top: 58px; left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-radius: 50px; padding: 3px;
+  display: flex;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.11), 0 0 0 0.5px rgba(0,0,0,0.05);
+}
+.tg-opt {
+  padding: 6px 13px; border-radius: 50px;
+  font-size: 11px; font-weight: 700; color: var(--text-mid);
+  white-space: nowrap; cursor: pointer; letter-spacing: -0.2px;
+}
+.tg-opt.on {
+  background: var(--text); color: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* 좌상단 — 앱 이름 (최소한) */
+.app-badge {
+  position: absolute; top: 62px; left: 14px;
+  z-index: 20;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-size: 13px; font-weight: 900; color: var(--text);
+  letter-spacing: -0.3px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1), 0 0 0 0.5px rgba(0,0,0,0.05);
+}
+.app-badge em { color: var(--brand); font-style: normal; }
+
+/* 우상단 FABs */
+.fabs {
+  position: absolute; top: 60px; right: 12px;
+  z-index: 20; display: flex; flex-direction: column; gap: 8px;
+}
+.fab {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--glass); backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 0 0 0.5px rgba(0,0,0,0.06);
+  color: var(--text-mid);
+}
+
+/* GPS locate */
+.loc {
+  position: absolute; right: 12px; z-index: 20;
+}
+
+/* ══════════════════════════════════════════════
+   BOTTOM SHEET
+   ══════════════════════════════════════════════ */
+.bs {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  z-index: 30;
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.06), 0 -8px 40px rgba(0,0,0,0.07);
+}
+.bs-handle {
+  width: 32px; height: 4px; background: rgba(0,0,0,0.1);
+  border-radius: 2px; margin: 10px auto 0;
+}
+.bs-body { padding: 10px 18px 14px; }
+
+/* 역 chip */
+.bs-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 700; color: var(--text-mid);
+  margin-bottom: 10px; letter-spacing: -0.1px;
+}
+.bs-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* 핵심 정보 행 */
+.bs-row { display: flex; gap: 11px; align-items: center; margin-bottom: 12px; }
+.bs-food {
+  width: 52px; height: 52px; border-radius: 16px;
+  background: #FFF0E6; border: 1px solid rgba(255,107,53,0.13);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; flex-shrink: 0;
+}
+.bs-name { font-size: 17px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 2px; }
+.bs-quote { font-size: 10px; color: var(--text-weak); margin-bottom: 5px; line-height: 1.4; }
+.bs-meta { display: flex; gap: 5px; }
+.bs-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 20px;
+}
+.bs-tag.open { background: #E6F9EE; color: #2A9B55; }
+.bs-tag.pct { background: #FEF3C7; color: #C47D10; }
+
+/* CTA 버튼 */
+.bs-cta {
+  width: 100%; padding: 13px;
+  background: var(--brand); color: white; border: none;
+  border-radius: 14px; font-size: 14px; font-weight: 800; font-family: inherit;
+  cursor: pointer; letter-spacing: -0.2px;
+  box-shadow: 0 4px 14px rgba(255,107,53,0.25);
+}
+
+/* ══════════════════════════════════════════════
+   BOTTOM NAV — 극도로 절제
+   ══════════════════════════════════════════════ */
+.bnav {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: var(--glass); backdrop-filter: blur(24px);
+  border-top: 0.5px solid rgba(0,0,0,0.07);
+  display: flex; padding: 8px 0 20px;
+}
+.bn-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; cursor: pointer;
+}
+.bn-ico {
+  font-size: 19px;
+  filter: grayscale(1) opacity(0.3);
+}
+.bn-ico.on { filter: none; }
+.bn-lbl { font-size: 9px; font-weight: 600; color: var(--text-weak); }
+.bn-lbl.on { color: var(--brand); font-weight: 800; }
+
+/* ══════════════════════════════════════════════
+   FULL SCREENS (여권, 미션, 프로필)
+   ══════════════════════════════════════════════ */
+.fs {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+}
+.fs-hd {
+  padding: 52px 20px 14px; background: white;
+  border-bottom: 0.5px solid var(--border); flex-shrink: 0;
+}
+.fs-hd-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+.fs-hd-sub { font-size: 11px; color: var(--text-weak); margin-top: 2px; }
+.fs-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.fs-body::-webkit-scrollbar { display: none; }
+
+/* ── 여권 카드 ── */
+.pp-card {
+  background: #181818; border-radius: 20px; padding: 20px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+}
+.pp-card::after {
+  content: '🗺'; position: absolute; right: -6px; bottom: -14px;
+  font-size: 80px; opacity: 0.05; pointer-events: none;
+}
+.pp-eye { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.22); margin-bottom: 16px; }
+.pp-main { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+.pp-lvname { font-size: 21px; font-weight: 900; color: white; letter-spacing: -0.5px; }
+.pp-lvsub { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+.pp-cnt { text-align: right; }
+.pp-cnt-n { font-size: 38px; font-weight: 900; color: var(--brand); line-height: 1; }
+.pp-cnt-u { font-size: 10px; color: rgba(255,255,255,0.22); margin-top: 2px; }
+.pp-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+.pp-bar-f { height: 100%; background: linear-gradient(90deg, var(--brand), #FFAA80); border-radius: 2px; }
+.pp-barlabel { display: flex; justify-content: space-between; font-size: 9px; color: rgba(255,255,255,0.18); margin-top: 5px; }
+
+/* 스탬프 — 핵심 UI */
+/* 지도에서 "역=음식 버블" 이 여권에서 "도장"으로 이어짐 */
+.stmp-title {
+  font-size: 12px; font-weight: 800; color: var(--text);
+  display: flex; justify-content: space-between; margin-bottom: 10px;
+}
+.stmp-more { font-size: 11px; font-weight: 600; color: var(--brand); cursor: pointer; }
+.stmp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.stmp {
+  aspect-ratio: 1; border-radius: 50%; /* 원형 = 지도 버블과 연속성 */
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+  position: relative;
+}
+.stmp.done {
+  background: white; border: 2px solid var(--border);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+.stmp.empty {
+  background: rgba(0,0,0,0.04); border: 1.5px dashed rgba(0,0,0,0.1);
+}
+.stmp-food { font-size: 18px; }
+.stmp-nm { font-size: 7px; font-weight: 700; color: var(--text-weak); }
+.stmp.done .stmp-nm { color: var(--brand); }
+.stmp-ck {
+  position: absolute; top: 0; right: 0;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #3DAB6F; color: white; font-size: 7px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid white;
+}
+
+/* ── 미션 카드 ── */
+.mission-card {
+  background: #181818; border-radius: 20px; padding: 22px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+}
+.mission-card::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,53,0.16), transparent 65%);
+  pointer-events: none;
+}
+.ms-eye {
+  font-size: 9px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--brand);
+  display: flex; align-items: center; gap: 5px; margin-bottom: 12px;
+}
+.ms-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--brand); animation: blink 1.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.ms-title { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 6px; }
+.ms-desc { font-size: 11px; color: rgba(255,255,255,0.38); line-height: 1.6; margin-bottom: 20px; }
+.ms-prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ms-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.ms-bar-f { height: 100%; background: linear-gradient(90deg, var(--brand), #FFAA80); border-radius: 4px; }
+.ms-num { font-size: 14px; font-weight: 900; color: white; white-space: nowrap; }
+.ms-reward {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 50px; padding: 6px 12px;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+}
+.ms-reward strong { color: var(--gold); }
+
+/* 카운트다운 */
+.cd-row {
+  background: white; border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border: 0.5px solid var(--border); margin-bottom: 12px;
+}
+.cd-label { font-size: 11px; font-weight: 700; color: var(--text-mid); }
+.cd-time { display: flex; gap: 8px; align-items: center; }
+.cd-b { text-align: center; }
+.cd-n { font-size: 20px; font-weight: 900; line-height: 1; }
+.cd-u { font-size: 8px; color: var(--text-weak); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+.cd-sep { font-size: 16px; font-weight: 900; color: var(--text-weak); padding-bottom: 6px; }
+
+/* 랭킹 */
+.lb {
+  background: white; border-radius: 14px;
+  overflow: hidden; border: 0.5px solid var(--border);
+}
+.lb-hd {
+  padding: 11px 16px; border-bottom: 0.5px solid var(--border);
+  font-size: 11px; font-weight: 800; color: var(--text);
+  display: flex; justify-content: space-between;
+}
+.lb-hd span { color: var(--brand); font-weight: 600; cursor: pointer; font-size: 11px; }
+.lb-r {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.04);
+}
+.lb-r:last-child { border-bottom: none; }
+.lb-rk { font-size: 12px; font-weight: 900; width: 16px; text-align: center; color: var(--text-weak); }
+.lb-rk.g { color: var(--gold); }
+.lb-rk.s { color: #9CA3AF; }
+.lb-rk.b { color: #C07D3A; }
+.lb-nm { flex: 1; font-size: 12px; font-weight: 700; }
+.lb-sc { font-size: 11px; font-weight: 700; color: var(--brand); }
+.lb-me-row { background: #FFF6F2; }
+.lb-me-row .lb-nm { color: var(--brand); font-weight: 900; }
+
+/* ── 프로필 ── */
+.pr-top {
+  background: white; padding: 52px 20px 18px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+}
+.pr-av {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #FFB380, #FF6B35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 25px; position: relative;
+}
+.pr-lv {
+  position: absolute; bottom: -2px; right: -2px;
+  background: var(--gold); color: white;
+  font-size: 8px; font-weight: 900;
+  padding: 2px 5px; border-radius: 5px; border: 1.5px solid white;
+}
+.pr-name { font-size: 17px; font-weight: 900; margin-bottom: 2px; }
+.pr-sub { font-size: 11px; color: var(--text-weak); }
+.pr-content { padding: 14px 18px; }
+.pr-stats {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 7px; margin-bottom: 14px;
+}
+.pr-stat {
+  background: white; border-radius: 14px; padding: 13px 10px;
+  text-align: center; border: 0.5px solid var(--border);
+}
+.pr-sv { font-size: 20px; font-weight: 900; }
+.pr-sv.o { color: var(--brand); }
+.pr-sl { font-size: 9px; font-weight: 600; color: var(--text-weak); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.pr-menu {
+  background: white; border-radius: 14px;
+  overflow: hidden; border: 0.5px solid var(--border);
+}
+.pr-mi {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+.pr-mi:last-child { border-bottom: none; }
+.pr-mico {
+  width: 32px; height: 32px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.pr-mn { flex: 1; font-size: 13px; font-weight: 600; }
+.pr-ms { font-size: 10px; color: var(--text-weak); margin-top: 1px; }
+.pr-arr { font-size: 14px; color: var(--text-weak); }
+
+/* ── 유튜버 스트립 ── */
+.yt-strip {
+  position: absolute; top: 50px; left: 0; right: 0; z-index: 25;
+  background: rgba(15,15,15,0.92); backdrop-filter: blur(12px);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.yt-av {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B35, #FFAA80);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+.yt-nm { font-size: 11px; font-weight: 800; color: white; flex: 1; }
+.yt-x {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: rgba(255,255,255,0.4); cursor: pointer;
+}
+
+/* ─── ANNOTATION ─── */
+.anno {
+  margin-top: 14px; background: white;
+  border: 0.5px solid rgba(0,0,0,0.07); border-radius: 16px;
+  padding: 16px 20px;
+}
+.anno-t {
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--brand); margin-bottom: 10px;
+}
+.anno-list { display: flex; flex-direction: column; gap: 6px; }
+.anno-item {
+  font-size: 12px; color: #555; line-height: 1.55;
+  display: flex; gap: 8px;
+}
+.anno-item::before { content: '↗'; color: var(--brand); font-weight: 800; flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+
+/* responsive */
+@media (max-width: 680px) {
+  .sec { padding: 36px 20px; }
+  .row { justify-content: center; }
+  .pg-head { padding: 44px 20px 36px; }
+}
+
+/* bg variants */
+.bg-a { background: #E2DDD7; }
+.bg-b { background: #D8D3CC; }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="pg-head">
+  <div class="pg-head-eye">지하슐랭 · UX Design v3</div>
+  <h1>역 하나,<br>맛집 <em>하나</em>.</h1>
+  <p>"정보 과잉의 시대, 결정 대신 확신을 드립니다."<br>UI 자체가 이 철학을 증명해야 한다.</p>
+  <div class="pg-head-concept">
+    <div class="concept-pill">역 마커 = <em>음식 버블</em></div>
+    <div class="concept-pill">선택지가 <em>보이지 않는</em> 지도</div>
+    <div class="concept-pill">노선도 <em>감성</em></div>
+    <div class="concept-pill">시즌 미션 <em>단 하나</em></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — 메인 지도
+     ═══════════════════════════════════════ -->
+<div class="bg-a">
+<div class="sec">
+  <div class="sec-eye">01 · Map</div>
+  <div class="sec-title">메인 지도 — "역 = 맛집" 이 보이는 지도</div>
+  <div class="sec-desc">
+    각 역에 하나의 음식 버블만 존재. 선택지 없음. "왜 하나냐?" 는 설명하지 않아도 지도 보는 순간 느껴진다.
+  </div>
+
+  <div class="row">
+
+    <!-- 기본 모드 -->
+    <div class="pu">
+      <div class="pl">기본 모드 · 투표 1위</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb">
+          <span class="sb-t" style="color:#222;">9:41</span>
+          <span class="sb-i" style="color:#222;">📶🔋</span>
+        </div>
+
+        <div class="map-wrap">
+          <div class="map-canvas">
+            <!-- 노선 — 굵고 뚜렷 -->
+            <!-- 2호선 (가로) -->
+            <div class="line" style="background:var(--line2);width:100%;height:6px;top:195px;left:0;"></div>
+            <!-- 4호선 (세로) -->
+            <div class="line" style="background:var(--line4);width:6px;height:100%;top:0;left:152px;"></div>
+            <!-- 1호선 (세로) -->
+            <div class="line" style="background:var(--line1);width:6px;height:100%;top:0;left:72px;"></div>
+            <!-- 9호선 (대각) -->
+            <div class="line" style="background:var(--line9);width:220px;height:5px;top:320px;left:40px;transform:rotate(-12deg);transform-origin:left center;"></div>
+
+            <!-- 환승역 표시 -->
+            <div class="xfer" style="left:152px;top:195px;"></div>
+            <div class="xfer" style="left:72px;top:195px;"></div>
+
+            <!-- 역들 — 음식 버블만 존재 -->
+            <!-- 2호선 라인 -->
+            <div class="st done" style="left:72px;top:195px;">
+              <div class="st-bub" style="--lc:var(--line2);">
+                🍜
+                <div class="done-tick">✓</div>
+              </div>
+              <div class="st-nm">서울역</div>
+            </div>
+
+            <div class="st hero" style="left:152px;top:195px;">
+              <div class="hero-crown">👑</div>
+              <div class="st-bub" style="--lc:var(--brand);">🥩</div>
+              <div class="st-nm">강남</div>
+            </div>
+
+            <div class="st" style="left:232px;top:195px;">
+              <div class="st-bub" style="--lc:var(--line2);">🍣</div>
+              <div class="st-nm">선릉</div>
+            </div>
+
+            <!-- 4호선 라인 -->
+            <div class="st done" style="left:152px;top:100px;">
+              <div class="st-bub" style="--lc:var(--line4);">
+                ☕
+                <div class="done-tick">✓</div>
+              </div>
+              <div class="st-nm">동대문</div>
+            </div>
+
+            <div class="st" style="left:152px;top:290px;">
+              <div class="st-bub" style="--lc:var(--line4);">🍱</div>
+              <div class="st-nm">사당</div>
+            </div>
+
+            <!-- 1호선 라인 -->
+            <div class="st" style="left:72px;top:105px;">
+              <div class="st-bub" style="--lc:var(--line1);">🍔</div>
+              <div class="st-nm">종각</div>
+            </div>
+
+            <div class="st done" style="left:72px;top:290px;">
+              <div class="st-bub" style="--lc:var(--line1);">
+                🥗
+                <div class="done-tick">✓</div>
+              </div>
+              <div class="st-nm">노량진</div>
+            </div>
+
+            <!-- 9호선 -->
+            <div class="st" style="left:85px;top:353px;">
+              <div class="st-bub" style="--lc:var(--line9);">🍕</div>
+              <div class="st-nm">여의도</div>
+            </div>
+            <div class="st" style="left:185px;top:335px;">
+              <div class="st-bub" style="--lc:var(--line9);">🍤</div>
+              <div class="st-nm">신논현</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3중 토글 -->
+        <div class="toggle">
+          <div class="tg-opt on">투표 1위</div>
+          <div class="tg-opt">유튜버</div>
+          <div class="tg-opt">이번 달</div>
+        </div>
+
+        <!-- GPS locate -->
+        <div class="loc" style="bottom:196px;">
+          <div class="fab">◎</div>
+        </div>
+
+        <!-- Bottom Sheet -->
+        <div class="bs">
+          <div class="bs-handle"></div>
+          <div class="bs-body">
+            <div class="bs-chip">
+              <div class="bs-dot" style="background:var(--line2);"></div>
+              2호선 · 강남역
+            </div>
+            <div class="bs-row">
+              <div class="bs-food">🥩</div>
+              <div style="flex:1;">
+                <div class="bs-name">고기한판</div>
+                <div class="bs-quote">"어서와요, 사장이 직접 굽습니다"</div>
+                <div class="bs-meta">
+                  <div class="bs-tag open">● 영업중</div>
+                  <div class="bs-tag pct">👑 72%</div>
+                </div>
+              </div>
+            </div>
+            <button class="bs-cta">📍 방문 인증하기</button>
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico on">🗺️</div><div class="bn-lbl on">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico">🎖️</div><div class="bn-lbl">여권</div></div>
+          <div class="bn-item"><div class="bn-ico">🏆</div><div class="bn-lbl">미션</div></div>
+          <div class="bn-item"><div class="bn-ico">👤</div><div class="bn-lbl">나</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 유튜버 모드 -->
+    <div class="pu">
+      <div class="pl">유튜버 모드 ON</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb">
+          <span class="sb-t" style="color:white;">9:41</span>
+          <span class="sb-i" style="color:white;">📶🔋</span>
+        </div>
+
+        <div class="map-wrap">
+          <div class="map-canvas" style="background:#EDE7DE;">
+            <div class="line" style="background:var(--line2);width:100%;height:6px;top:220px;left:0;"></div>
+            <div class="line" style="background:var(--line4);width:6px;height:100%;top:0;left:152px;"></div>
+            <div class="line" style="background:var(--line1);width:6px;height:100%;top:0;left:72px;"></div>
+            <div class="xfer" style="left:152px;top:220px;"></div>
+            <div class="xfer" style="left:72px;top:220px;"></div>
+
+            <!-- 유튜버 모드에서도 역당 하나 — 음식만 교체됨 -->
+            <div class="st hero" style="left:152px;top:220px;">
+              <div class="hero-crown">🎬</div>
+              <div class="st-bub" style="--lc:var(--brand);">🥘</div>
+              <div class="st-nm">강남</div>
+            </div>
+            <div class="st" style="left:72px;top:220px;">
+              <div class="st-bub" style="--lc:var(--line2);">🍲</div>
+              <div class="st-nm">서울역</div>
+            </div>
+            <div class="st" style="left:232px;top:220px;">
+              <div class="st-bub" style="--lc:var(--line2);">🥟</div>
+              <div class="st-nm">선릉</div>
+            </div>
+            <div class="st" style="left:152px;top:120px;">
+              <div class="st-bub" style="--lc:var(--line4);">🍤</div>
+              <div class="st-nm">동대문</div>
+            </div>
+            <div class="st" style="left:152px;top:315px;">
+              <div class="st-bub" style="--lc:var(--line4);">🍛</div>
+              <div class="st-nm">사당</div>
+            </div>
+            <div class="st" style="left:72px;top:125px;">
+              <div class="st-bub" style="--lc:var(--line1);">🥩</div>
+              <div class="st-nm">종각</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 유튜버 스트립 -->
+        <div class="yt-strip">
+          <div class="yt-av">🎬</div>
+          <div class="yt-nm">백종원의 골목식당 · 187개 역</div>
+          <div class="yt-x">✕</div>
+        </div>
+
+        <!-- 토글 (유튜버 ON) -->
+        <div class="toggle" style="top:90px;">
+          <div class="tg-opt">투표 1위</div>
+          <div class="tg-opt on">유튜버</div>
+          <div class="tg-opt">이번 달</div>
+        </div>
+
+        <div class="loc" style="bottom:196px;">
+          <div class="fab">◎</div>
+        </div>
+
+        <div class="bs">
+          <div class="bs-handle"></div>
+          <div class="bs-body">
+            <div class="bs-chip">
+              <div class="bs-dot" style="background:var(--line2);"></div>
+              2호선 · 강남역 &nbsp;·&nbsp; <span style="color:var(--brand);font-weight:800;">🎬 유튜버 픽</span>
+            </div>
+            <div class="bs-row">
+              <div class="bs-food">🥘</div>
+              <div style="flex:1;">
+                <div class="bs-name">국밥천국</div>
+                <div class="bs-quote">"이 집은 정말 진국입니다"</div>
+                <div class="bs-meta">
+                  <div class="bs-tag open">● 영업중</div>
+                  <div class="bs-tag pct" style="background:#FFF0EA;color:var(--brand);">🎬 픽</div>
+                </div>
+              </div>
+            </div>
+            <button class="bs-cta">📍 방문 인증하기</button>
+          </div>
+        </div>
+
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico on">🗺️</div><div class="bn-lbl on">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico">🎖️</div><div class="bn-lbl">여권</div></div>
+          <div class="bn-item"><div class="bn-ico">🏆</div><div class="bn-lbl">미션</div></div>
+          <div class="bn-item"><div class="bn-ico">👤</div><div class="bn-lbl">나</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상세 시트 -->
+    <div class="pu">
+      <div class="pl">역 상세 (시트 확장)</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb">
+          <span class="sb-t" style="color:#222;">9:41</span>
+          <span class="sb-i" style="color:#222;">📶🔋</span>
+        </div>
+
+        <!-- 지도 흐릿하게 뒤로 -->
+        <div class="map-wrap" style="filter:blur(1px);opacity:0.5;">
+          <div class="map-canvas">
+            <div class="line" style="background:var(--line2);width:100%;height:6px;top:50%;"></div>
+            <div class="line" style="background:var(--line4);width:6px;height:100%;left:50%;"></div>
+            <div class="st hero" style="left:50%;top:50%;">
+              <div class="st-bub" style="--lc:var(--brand);">🥩</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 확장된 상세 시트 -->
+        <div style="position:absolute;bottom:0;left:0;right:0;z-index:35;
+          background:rgba(252,250,247,0.96);backdrop-filter:blur(32px) saturate(180%);
+          border-radius:22px 22px 0 0;
+          box-shadow:0 -1px 0 rgba(0,0,0,0.05),0 -12px 48px rgba(0,0,0,0.09);
+          overflow:hidden;">
+          <div class="bs-handle" style="margin-top:12px;margin-bottom:0;"></div>
+          <div style="padding:12px 20px 8px;">
+            <!-- 음식 + 이름 헤더 -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+              <div style="width:52px;height:52px;border-radius:50%;/* 원형 — 지도 버블과 동일한 형태로 연속성 */
+                background:#FFF0E6;border:3px solid rgba(255,107,53,0.2);
+                display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;
+                box-shadow:0 2px 8px rgba(255,107,53,0.12);">🥩</div>
+              <div style="flex:1;">
+                <div style="font-size:18px;font-weight:900;letter-spacing:-0.4px;margin-bottom:3px;">고기한판</div>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <div style="width:7px;height:7px;border-radius:50%;background:var(--line2);"></div>
+                  <div style="font-size:11px;color:var(--text-mid);font-weight:600;">2호선 · 강남역</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.05);
+                  display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-mid);">♡</div>
+                <div style="width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.05);
+                  display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-mid);">↗</div>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;">
+              <div style="background:rgba(0,0,0,0.04);border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-size:18px;font-weight:900;color:var(--brand);">72%</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-top:2px;">득표율</div>
+              </div>
+              <div style="background:rgba(0,0,0,0.04);border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-size:18px;font-weight:900;color:#2A9B55;">영업중</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-top:2px;">상태</div>
+              </div>
+              <div style="background:rgba(0,0,0,0.04);border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-size:18px;font-weight:900;color:var(--text);">S4</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-top:2px;">시즌</div>
+              </div>
+            </div>
+
+            <!-- 투표 바 -->
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:5px;">
+                <span>고기한판</span><span style="color:var(--brand);">72%</span>
+              </div>
+              <div style="height:5px;background:rgba(0,0,0,0.07);border-radius:3px;overflow:hidden;margin-bottom:7px;">
+                <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--brand),#FFAA80);border-radius:3px;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:var(--text-weak);margin-bottom:5px;">
+                <span>스시롤</span><span>18%</span>
+              </div>
+              <div style="height:5px;background:rgba(0,0,0,0.07);border-radius:3px;overflow:hidden;">
+                <div style="width:18%;height:100%;background:#C8C4BE;border-radius:3px;"></div>
+              </div>
+            </div>
+
+            <!-- 사장님 한마디 -->
+            <div style="font-size:11px;color:var(--text-mid);font-style:italic;margin-bottom:14px;line-height:1.5;padding-left:2px;">
+              "어서 오세요. 사장이 직접 구워드립니다 😊"
+            </div>
+
+            <button style="width:100%;padding:14px;background:var(--brand);color:white;border:none;
+              border-radius:14px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;
+              box-shadow:0 4px 14px rgba(255,107,53,0.25);letter-spacing:-0.2px;">
+              📍 GPS 방문 인증 · 50m 이내
+            </button>
+            <div style="font-size:10px;color:var(--text-weak);text-align:center;margin-top:7px;">
+              인증 시 미식 여권에 🥩 도장이 찍힙니다
+            </div>
+          </div>
+        </div>
+
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico on">🗺️</div><div class="bn-lbl on">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico">🎖️</div><div class="bn-lbl">여권</div></div>
+          <div class="bn-item"><div class="bn-ico">🏆</div><div class="bn-lbl">미션</div></div>
+          <div class="bn-item"><div class="bn-ico">👤</div><div class="bn-lbl">나</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="anno">
+    <div class="anno-t">이 지도가 다른 맛집 앱과 다른 이유</div>
+    <div class="anno-list">
+      <div class="anno-item">역 마커가 음식 버블로 대체됨 → "강남역에 가면 🥩 먹어야 해" 가 지도 보는 순간 각인.</div>
+      <div class="anno-item">각 역에 버블이 딱 하나 → 선택지가 없다는 게 설명 없이 UI에서 보인다.</div>
+      <div class="anno-item">방문한 역은 흐려짐 → 지도 자체가 수집 현황판. "안 가본 역 = 선명한 버블"</div>
+      <div class="anno-item">유튜버 모드에서도 역당 하나 유지 → 철학이 흔들리지 않음. 음식만 교체.</div>
+      <div class="anno-item">상세 시트의 음식 아이콘도 원형 → 지도 버블과 시각 언어 통일. "여권 도장"으로 이어지는 연속성.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — 여권
+     ═══════════════════════════════════════ -->
+<div class="bg-b">
+<div class="sec">
+  <div class="sec-eye">02 · Passport</div>
+  <div class="sec-title">미식 여권 — 지도 버블이 도장으로</div>
+  <div class="sec-desc">지도에서 만난 음식 버블이 여권에선 도장이 된다. 원형 → 원형. 같은 시각 언어.</div>
+
+  <div class="row">
+    <div class="pu">
+      <div class="pl">여권 탭</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">📶🔋</span></div>
+        <div class="fs">
+          <div class="fs-hd">
+            <div class="fs-hd-title">🎖️ 미식 여권</div>
+            <div class="fs-hd-sub">방문한 역의 맛집이 도장으로 남는다</div>
+          </div>
+          <div class="fs-body">
+            <div class="pp-card">
+              <div class="pp-eye">Gourmet Passport · Season 4</div>
+              <div class="pp-main">
+                <div>
+                  <div class="pp-lvname">미식 탐험가</div>
+                  <div class="pp-lvsub">다음 레벨까지 8개 역</div>
+                </div>
+                <div class="pp-cnt">
+                  <div class="pp-cnt-n">12</div>
+                  <div class="pp-cnt-u">방문 역</div>
+                </div>
+              </div>
+              <div class="pp-bar"><div class="pp-bar-f" style="width:16%;"></div></div>
+              <div class="pp-barlabel"><span>Lv.3 탐험가</span><span>Lv.4 미슐랭까지 8역</span></div>
+            </div>
+
+            <!-- 스트릭 -->
+            <div style="display:flex;gap:7px;margin-bottom:14px;">
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 10px;text-align:center;border:0.5px solid var(--border);">
+                <div style="font-size:20px;font-weight:900;color:var(--brand);">12</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">방문 역</div>
+              </div>
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 10px;text-align:center;border:0.5px solid var(--border);">
+                <div style="font-size:20px;font-weight:900;">🔥 5</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">주 스트릭</div>
+              </div>
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 10px;text-align:center;border:0.5px solid var(--border);">
+                <div style="font-size:20px;font-weight:900;color:var(--gold);">3</div>
+                <div style="font-size:9px;color:var(--text-weak);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">뱃지</div>
+              </div>
+            </div>
+
+            <!-- 도장 그리드 — 원형 버블, 지도와 동일 -->
+            <div class="stmp-title">
+              방문 도장
+              <span class="stmp-more">전체</span>
+            </div>
+            <div class="stmp-grid">
+              ${[
+                {e:'🥩',n:'강남'},{e:'🍣',n:'홍대'},{e:'☕',n:'신촌'},
+                {e:'🍱',n:'교대'},{e:'🍜',n:'종각'},{e:'🍕',n:'이대'},
+                {e:'🍔',n:'합정'},{e:'🍤',n:'여의도'},{e:'🥗',n:'영등포'},
+                {e:'🥘',n:'사당'},{},{},{},{},{}
+              ].map((s,i) => i < 10 ? `
+                <div class="stmp done">
+                  <div class="stmp-ck">✓</div>
+                  <div class="stmp-food">${s.e}</div>
+                  <div class="stmp-nm">${s.n}</div>
+                </div>` : `
+                <div class="stmp empty"></div>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico">🗺️</div><div class="bn-lbl">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico on">🎖️</div><div class="bn-lbl on">여권</div></div>
+          <div class="bn-item"><div class="bn-ico">🏆</div><div class="bn-lbl">미션</div></div>
+          <div class="bn-item"><div class="bn-ico">👤</div><div class="bn-lbl">나</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — 단일 미션
+     ═══════════════════════════════════════ -->
+<div class="bg-a">
+<div class="sec">
+  <div class="sec-eye">03 · Mission</div>
+  <div class="sec-title">이번 시즌 미션 — 단 하나</div>
+  <div class="sec-desc">"이번 시즌 강남 3대장 정복하셨나요?" 마케팅 한 줄이 자연스럽게 나오는 구조.</div>
+
+  <div class="row">
+    <div class="pu">
+      <div class="pl">미션 탭</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">📶🔋</span></div>
+        <div class="fs">
+          <div class="fs-hd">
+            <div class="fs-hd-title">🏆 이번 시즌 미션</div>
+            <div class="fs-hd-sub">시즌 4 · 4일 21시간 남음</div>
+          </div>
+          <div class="fs-body">
+            <div class="mission-card">
+              <div class="ms-eye"><div class="ms-dot"></div>Season 4 · 단 하나의 미션</div>
+              <div class="ms-title">강남구<br>3대장 정복</div>
+              <div class="ms-desc">강남 · 역삼 · 선릉역<br>3곳 모두 방문 인증 시 달성</div>
+              <div class="ms-prog-row">
+                <div class="ms-bar"><div class="ms-bar-f" style="width:66%;"></div></div>
+                <div class="ms-num">2 / 3</div>
+              </div>
+              <div class="ms-reward">달성 보상 <strong>👑 골드 크라운 뱃지</strong></div>
+            </div>
+
+            <div class="cd-row">
+              <div class="cd-label">시즌 종료까지</div>
+              <div class="cd-time">
+                <div class="cd-b"><div class="cd-n">4</div><div class="cd-u">일</div></div>
+                <div class="cd-sep">:</div>
+                <div class="cd-b"><div class="cd-n">21</div><div class="cd-u">시간</div></div>
+                <div class="cd-sep">:</div>
+                <div class="cd-b"><div class="cd-n">33</div><div class="cd-u">분</div></div>
+              </div>
+            </div>
+
+            <div class="lb">
+              <div class="lb-hd">이번 시즌 랭킹 <span>전체 보기</span></div>
+              ${[
+                {r:'1',rc:'g',n:'맛집헌터_86',s:'28역'},
+                {r:'2',rc:'s',n:'서울미식가',s:'24역'},
+                {r:'3',rc:'b',n:'지하철탐식가',s:'21역'},
+                {r:'4',rc:'',n:'나 (김미식)',s:'12역',me:true},
+              ].map(r=>`
+                <div class="lb-r ${r.me?'lb-me-row':''}">
+                  <div class="lb-rk ${r.rc}">${r.r}</div>
+                  <div class="lb-nm">${r.n}</div>
+                  <div class="lb-sc">${r.s}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico">🗺️</div><div class="bn-lbl">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico">🎖️</div><div class="bn-lbl">여권</div></div>
+          <div class="bn-item"><div class="bn-ico on">🏆</div><div class="bn-lbl on">미션</div></div>
+          <div class="bn-item"><div class="bn-ico">👤</div><div class="bn-lbl">나</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — 프로필
+     ═══════════════════════════════════════ -->
+<div class="bg-b">
+<div class="sec">
+  <div class="sec-eye">04 · Profile</div>
+  <div class="sec-title">내 정보</div>
+  <div class="sec-desc">숫자 3개 + 메뉴. 끝.</div>
+
+  <div class="row">
+    <div class="pu">
+      <div class="pl">프로필 탭</div>
+      <div class="phone">
+        <div class="di"></div>
+        <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">📶🔋</span></div>
+        <div class="fs" style="overflow:hidden;">
+          <div class="pr-top">
+            <div class="pr-av">😋<div class="pr-lv">Lv.3</div></div>
+            <div style="flex:1;">
+              <div class="pr-name">김미식</div>
+              <div class="pr-sub">미식 탐험가 · @gourmet_kim</div>
+            </div>
+            <div style="font-size:12px;color:var(--brand);font-weight:700;cursor:pointer;">편집</div>
+          </div>
+          <div style="flex:1;overflow-y:auto;" class="fs-body">
+            <div class="pr-stats">
+              <div class="pr-stat"><div class="pr-sv o">12</div><div class="pr-sl">방문 역</div></div>
+              <div class="pr-stat"><div class="pr-sv">🔥 5</div><div class="pr-sl">스트릭</div></div>
+              <div class="pr-stat"><div class="pr-sv" style="color:var(--gold);">3</div><div class="pr-sl">뱃지</div></div>
+            </div>
+            <div class="pr-menu">
+              ${[
+                {ico:'🎬',bg:'#FFF5F0',name:'유튜버 연결',sub:'관심 인플루언서 설정'},
+                {ico:'🔔',bg:'#FAFAF5',name:'알림 설정',sub:'투표 결과, 미션 알림'},
+                {ico:'📅',bg:'#F5FFF8',name:'월별 리포트',sub:'나의 방문 통계'},
+                {ico:'⚙️',bg:'#F5F5F5',name:'앱 설정',sub:'테마, 언어, 로그아웃'},
+              ].map(m=>`
+                <div class="pr-mi">
+                  <div class="pr-mico" style="background:${m.bg};">${m.ico}</div>
+                  <div style="flex:1;"><div class="pr-mn">${m.name}</div><div class="pr-ms">${m.sub}</div></div>
+                  <div class="pr-arr">›</div>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="bnav">
+          <div class="bn-item"><div class="bn-ico">🗺️</div><div class="bn-lbl">지도</div></div>
+          <div class="bn-item"><div class="bn-ico">🔍</div><div class="bn-lbl">탐색</div></div>
+          <div class="bn-item"><div class="bn-ico">🎖️</div><div class="bn-lbl">여권</div></div>
+          <div class="bn-item"><div class="bn-ico">🏆</div><div class="bn-lbl">미션</div></div>
+          <div class="bn-item"><div class="bn-ico on">👤</div><div class="bn-lbl on">나</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="background:#0E0E0E;padding:44px;text-align:center;">
+  <div style="font-size:10px;color:rgba(255,255,255,0.18);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;">Design Language</div>
+  <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:22px;max-width:660px;margin:0 auto;">
+    ${[
+      ['핵심 UI 언어','원형 버블 — 지도·상세·도장 전체 통일'],
+      ['브랜드 컬러','#FF6B35 · 1위 역과 CTA에만 집중 사용'],
+      ['지도 배경','#F0EBE2 크림 — 일반 앱과 다른 따뜻함'],
+      ['아이콘','그레이스케일 비활성 · 활성만 컬러'],
+      ['미션 원칙','시즌 1개 · 카운트다운 · 랭킹'],
+      ['연속성','버블 → 시트 아이콘 → 여권 도장 → 동일 형태'],
+    ].map(([k,v])=>`
+      <div style="text-align:left;min-width:180px;">
+        <div style="font-size:9px;font-weight:800;color:var(--brand);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">${k}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);line-height:1.5;">${v}</div>
+      </div>`).join('')}
+  </div>
+</div>
+
+</body>
+</html>
