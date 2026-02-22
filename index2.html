@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지하철 맛집 UI 디자인 시트</title>
+<style>
+  /* Base & Reset */
+  * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; padding: 40px; background: var(--bg-color); color: var(--text-color); }
+
+  /* 1. Naver Map Style (Default) */
+  :root {
+    --bg-color: #F5F6F8; --card-bg: #FFFFFF; --text-color: #242424; --text-sub: #8F959B;
+    --primary: #03C75A; --primary-hover: #02b351;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --border: 1px solid #E3E5E8;
+    --font-weight-bold: 600;
+  }
+
+  /* 2. Duolingo Style */
+  [data-theme="duolingo"] {
+    --bg-color: #FFFFFF; --card-bg: #FFFFFF; --text-color: #4B4B4B; --text-sub: #AFAFAF;
+    --primary: #58CC02; --primary-hover: #46A302;
+    --radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;
+    --shadow: 0 4px 0 #E5E5E5;
+    --border: 2px solid #E5E5E5;
+    --font-weight-bold: 800;
+  }
+  [data-theme="duolingo"] .btn-primary { box-shadow: 0 4px 0 #58A700; border: none; }
+  [data-theme="duolingo"] .btn-primary:active { transform: translateY(4px); box-shadow: 0 0 0 #58A700; }
+
+  /* 3. Dark Metro Style */
+  [data-theme="metro"] {
+    --bg-color: #121212; --card-bg: #1E1E1E; --text-color: #FFFFFF; --text-sub: #A0A0A0;
+    --primary: #00A84D; /* 2호선 색상 */ --primary-hover: #00c75a;
+    --radius-sm: 0px; --radius-md: 0px; --radius-lg: 0px;
+    --shadow: 4px 4px 0 rgba(0, 168, 77, 0.3);
+    --border: 1px solid #333333;
+    --font-weight-bold: 700;
+  }
+
+  /* 4. Minimal Lifestyle */
+  [data-theme="lifestyle"] {
+    --bg-color: #FAF9F6; --card-bg: #FFFFFF; --text-color: #4A443C; --text-sub: #9E9689;
+    --primary: #D2C5B5; --primary-hover: #bdae9c;
+    --radius-sm: 8px; --radius-md: 16px; --radius-lg: 20px;
+    --shadow: 0 10px 30px rgba(74, 68, 60, 0.05);
+    --border: none;
+    --font-weight-bold: 500;
+  }
+
+  /* 5. Retro Arcade */
+  [data-theme="retro"] {
+    --bg-color: #000000; --card-bg: #000000; --text-color: #FFFFFF; --text-sub: #AAAAAA;
+    --primary: #FF004D; --primary-hover: #CC003D;
+    --radius-sm: 0; --radius-md: 0; --radius-lg: 0;
+    --shadow: 4px 4px 0 #FFFFFF;
+    --border: 4px solid #FFFFFF;
+    --font-weight-bold: 900;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  /* 6. Vibrant Foodie */
+  [data-theme="foodie"] {
+    --bg-color: #FFF8F6; --card-bg: #FFFFFF; --text-color: #331812; --text-sub: #997B74;
+    --primary: #FF5A5F; --primary-hover: #E0484D;
+    --radius-sm: 16px; --radius-md: 20px; --radius-lg: 32px;
+    --shadow: 0 8px 20px rgba(255, 90, 95, 0.15);
+    --border: none;
+    --font-weight-bold: 700;
+  }
+
+  /* 7. Glassmorphism */
+  [data-theme="glass"] {
+    --bg-color: linear-gradient(135deg, #74EBD5 0%, #9FACE6 100%); 
+    --card-bg: rgba(255, 255, 255, 0.2); 
+    --text-color: #000000; --text-sub: #444444;
+    --primary: rgba(255, 255, 255, 0.4); --primary-hover: rgba(255, 255, 255, 0.6);
+    --radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;
+    --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    --border: 1px solid rgba(255, 255, 255, 0.4);
+    --font-weight-bold: 600;
+  }
+  [data-theme="glass"] body { background: var(--bg-color); min-height: 100vh; }
+  [data-theme="glass"] .card, [data-theme="glass"] .btn-secondary { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+  /* Layout & Component Styles */
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+  
+  .sheet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+  
+  .section { background: var(--card-bg); padding: 24px; border-radius: var(--radius-lg); border: var(--border); box-shadow: var(--shadow); }
+  h2 { margin-bottom: 20px; font-weight: var(--font-weight-bold); font-size: 18px; color: var(--text-color); }
+  
+  /* Buttons */
+  .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: var(--font-weight-bold); cursor: pointer; font-size: 14px; text-align: center; }
+  .btn-primary { background: var(--primary); color: #FFF; border: none; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: transparent; color: var(--text-color); border: var(--border); }
+  
+  /* Badges */
+  .badge-group { display: flex; gap: 8px; margin-top: 10px; }
+  .badge { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-sm); font-weight: 600; }
+  .badge-line2 { background: #00A84D; color: white; }
+  .badge-hot { background: #FF3B30; color: white; }
+  .badge-outline { border: var(--border); color: var(--text-sub); }
+
+  /* Card */
+  .card { background: var(--card-bg); border-radius: var(--radius-md); border: var(--border); overflow: hidden; box-shadow: var(--shadow); }
+  .card-img { width: 100%; height: 160px; background: #ddd; display: flex; align-items: center; justify-content: center; color: #999; }
+  .card-content { padding: 16px; }
+  .card-title { font-size: 18px; font-weight: var(--font-weight-bold); margin-bottom: 4px; color: var(--text-color); }
+  .card-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>역세권 맛집 UI 시스템</h1>
+  <select id="themeSelector" onchange="document.documentElement.setAttribute('data-theme', this.value)">
+    <option value="">1. 네이버 지도 (Default)</option>
+    <option value="duolingo">2. 듀오링고 (Gamified)</option>
+    <option value="metro">3. 다크 메트로 (Neon)</option>
+    <option value="lifestyle">4. 라이프스타일 (Minimal)</option>
+    <option value="retro">5. 레트로 아케이드 (8-bit)</option>
+    <option value="foodie">6. 비비드 푸디 (Appetizing)</option>
+    <option value="glass">7. 글래스모피즘 (Trendy)</option>
+  </select>
+</div>
+
+<div class="sheet-grid">
+  <div class="section">
+    <h2>Buttons</h2>
+    <div class="btn-group">
+      <div class="btn btn-primary">맛집 등록하기</div>
+      <div class="btn btn-secondary">취소</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Tags & Badges</h2>
+    <div class="badge-group">
+      <div class="badge badge-line2">2호선 강남역</div>
+      <div class="badge badge-hot">도장 2배</div>
+      <div class="badge badge-outline">리뷰 99+</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Restaurant Card</h2>
+    <div class="card">
+      <div class="card-img">이미지 영역</div>
+      <div class="card-content">
+        <div class="card-title">성수동 힙한 타코집</div>
+        <div class="card-desc">성수역 3번 출구에서 도보 2분! 타코 먹고 배지 획득하세요.</div>
+        <div class="btn btn-primary" style="width: 100%;">방문 인증하기</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
